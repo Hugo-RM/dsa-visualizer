@@ -4,15 +4,7 @@ A web-based interactive tool for visualizing data structures and algorithms, bui
 
 ## Project Overview
 
-This project provides step-by-step visual representations of popular sorting algorithms, allowing users to see exactly how each algorithm processes data. Perfect for computer science students, tutors, and anyone learning algorithmic concepts.
-
-## Current Features
-
-- Interactive array visualization with animated bars
-- Real-time algorithm step visualization
-- Customizable animation speed
-- User input validation for custom arrays
-- Responsive design for all devices
+This project will provide a step-by-step visual representations of popular sorting algorithms, allowing users to see exactly how each algorithm processes data. Perfect for computer science students, tutors, and anyone learning algorithmic concepts.
 
 ## Technologies Used
 
@@ -25,8 +17,21 @@ This project provides step-by-step visual representations of popular sorting alg
 ## Planned Features
 
 - **Data Structures:**
-  - Binary Search Trees
-  - Graph Traversal (BFS/DFS)
+  - Arrays (in progress)
+    - Array Based Stack
+      - Monotonic Stack
+    - Array Based Queue
+      - Circular Queue 
+  - Linked Lists
+    - Linked List Based Stack
+    - Linked List Based Queue
+  - Binary Trees
+    - Binary Search Tree
+    - AVL Tree
+    - Red-Black Tree
+  - Graphs
+    - Adjacency List
+    - Adjacency Matrix
 
 - **Sorting Algorithms:**
   - Bubble Sort (in progress)
@@ -36,8 +41,10 @@ This project provides step-by-step visual representations of popular sorting alg
   - Selection Sort
 
 - **Search Algorithms:**
+  - Linear Search (in progress)
   - Binary Search
-  - Linear Search
+  - Jump Search (not sure yet)
+  - Interpolation Search (not sure yet)
 
 - **Enhanced Features:**
   - Algorithm comparison mode
@@ -45,13 +52,6 @@ This project provides step-by-step visual representations of popular sorting alg
   - Save/load custom arrays
   - Algorithm complexity analysis
   - Step-by-step code walkthrough
-
-## Development Tools
-
-- **Git & GitHub** - Version control and project hosting
-- **npm** - Package management
-- **VS Code** - Development environment
-- **Node.js** - Runtime environment for tooling
 
 ## Project Goals
 
