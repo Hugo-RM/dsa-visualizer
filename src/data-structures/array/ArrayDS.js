@@ -21,13 +21,18 @@ class ArrayDS extends BaseDataStructure {
         }
         return true;
     }
-    reset () {
+    reset() {
         this.array = [...this.ogArray];
         this.accessCount = 0;
         this.comparisons = 0;
         this.swaps = 0;
-        this.shouldStop = false; // watch out
+        this.shouldStop = true; // watch out
         this.isAnimating = false;
+    }
+    resetStats() {
+        this.accessCount = 0;
+        this.comparisons = 0;
+        this.swaps = 0;
     }
     swap(i, j) {
         if (i >= 0 && i < this.array.length && j >= 0 && j < this.array.length) {

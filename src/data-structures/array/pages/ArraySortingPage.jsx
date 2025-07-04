@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import BubbleSort from '../algorithms/sorting/BubbleSort.js'
+import ArrayVisualizer from '../components/ArrayVisualizer.jsx'
 
 function ArraySortingPage() {
   // Algorithm instances
@@ -41,10 +42,12 @@ function ArraySortingPage() {
   };
 
   // Start bubble sort using the class
-  const runBubbleSort = async () => {
+  const runSort = async () => {
     if (!bubbleSortInstance) return;
-    
+
     setIsRunning(true);
+
+    bubbleSortInstance.resetStats(); // added this line
     
     // Update the speed in the algorithm instance
     bubbleSortInstance.setAnimationSpeed(speed);
@@ -94,27 +97,6 @@ function ArraySortingPage() {
     setAnimationData({});
   };
 
-  // Get bar styling based on animation state
-  const getBarStyle = (index, algorithm = 'bubble') => {
-    let className = "text-white text-xs flex items-end justify-center transition-all duration-200";
-    
-    if (algorithm === 'bubble' && animationData) {
-      if (animationData.comparing && animationData.comparing.includes(index)) {
-        className += " bg-red-500"; // Comparing
-      } else if (animationData.swapping && animationData.swapping.includes(index)) {
-        className += " bg-yellow-500"; // Swapping
-      } else if (animationData.sorted && animationData.sorted.includes(index)) {
-        className += " bg-green-500"; // Sorted
-      } else {
-        className += " bg-blue-500"; // Default
-      }
-    } else {
-      className += " bg-gray-400"; // Inactive algorithms
-    }
-    
-    return className;
-  };
-
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -138,7 +120,7 @@ function ArraySortingPage() {
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex flex-wrap gap-4 items-center">
           <button
-            onClick={runBubbleSort}
+            onClick={runSort}
             disabled={isRunning}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
           >
@@ -201,25 +183,14 @@ function ArraySortingPage() {
           <h3 className="text-lg font-semibold mb-2">Bubble Sort</h3>
           <p className="text-sm text-gray-600 mb-4">Time: O(n²) | Space: O(1)</p>
           
-          {/* Array Visualization */}
-          <div className="flex items-end justify-center space-x-1 h-40 mb-4">
-            {bubbleArray.map((value, index) => (
-              <div
-                key={index}
-                className={getBarStyle(index, 'bubble')}
-                style={{
-                  height: `${value * 1.5}px`,
-                  width: '30px'
-                }}
-              >
-                <span className="mb-1">{value}</span>
-              </div>
-            ))}
-          </div>
-          
-          <p className="text-center text-sm text-gray-600">
-            Current: [{bubbleArray.join(', ')}]
-          </p>
+          <ArrayVisualizer 
+            array={bubbleArray}
+            animationData={animationData}
+            algorithm="bubble"
+            height={40}
+            showValues={true}
+            showCurrentArray={true}
+          />
         </div>
 
         {/* Quick Sort (Placeholder) */}
@@ -227,20 +198,14 @@ function ArraySortingPage() {
           <h3 className="text-lg font-semibold mb-2">Quick Sort</h3>
           <p className="text-sm text-gray-600 mb-4">Time: O(n log n) | Space: O(log n)</p>
           
-          <div className="flex items-end justify-center space-x-1 h-40 mb-4">
-            {quickArray.map((value, index) => (
-              <div
-                key={index}
-                className="bg-gray-400 text-white text-xs flex items-end justify-center"
-                style={{
-                  height: `${value * 1.5}px`,
-                  width: '30px'
-                }}
-              >
-                <span className="mb-1">{value}</span>
-              </div>
-            ))}
-          </div>
+          <ArrayVisualizer 
+            array={quickArray}
+            animationData={null}
+            algorithm="quick"
+            height={40}
+            showValues={true}
+            showCurrentArray={false}
+          />
           
           <p className="text-center text-sm text-gray-600">Coming Soon</p>
         </div>
@@ -250,20 +215,14 @@ function ArraySortingPage() {
           <h3 className="text-lg font-semibold mb-2">Merge Sort</h3>
           <p className="text-sm text-gray-600 mb-4">Time: O(n log n) | Space: O(n)</p>
           
-          <div className="flex items-end justify-center space-x-1 h-40 mb-4">
-            {mergeArray.map((value, index) => (
-              <div
-                key={index}
-                className="bg-gray-400 text-white text-xs flex items-end justify-center"
-                style={{
-                  height: `${value * 1.5}px`,
-                  width: '30px'
-                }}
-              >
-                <span className="mb-1">{value}</span>
-              </div>
-            ))}
-          </div>
+          <ArrayVisualizer 
+            array={mergeArray}
+            animationData={null}
+            algorithm="merge"
+            height={40}
+            showValues={true}
+            showCurrentArray={false}
+          />
           
           <p className="text-center text-sm text-gray-600">Coming Soon</p>
         </div>
@@ -273,20 +232,14 @@ function ArraySortingPage() {
           <h3 className="text-lg font-semibold mb-2">Selection Sort</h3>
           <p className="text-sm text-gray-600 mb-4">Time: O(n²) | Space: O(1)</p>
           
-          <div className="flex items-end justify-center space-x-1 h-40 mb-4">
-            {selectionArray.map((value, index) => (
-              <div
-                key={index}
-                className="bg-gray-400 text-white text-xs flex items-end justify-center"
-                style={{
-                  height: `${value * 1.5}px`,
-                  width: '30px'
-                }}
-              >
-                <span className="mb-1">{value}</span>
-              </div>
-            ))}
-          </div>
+          <ArrayVisualizer 
+            array={selectionArray}
+            animationData={null}
+            algorithm="selection"
+            height={40}
+            showValues={true}
+            showCurrentArray={false}
+          />
           
           <p className="text-center text-sm text-gray-600">Coming Soon</p>
         </div>

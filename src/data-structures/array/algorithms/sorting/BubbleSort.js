@@ -16,6 +16,11 @@ class BubbleSort extends ArrayDS {
         this.currentI = 0;
         this.currentJ = 0;
     }
+    resetStats() {
+        super.resetStats();
+        this.currentI = 0;
+        this.currentJ = 0;
+    }
 
     async sort(pnStepCallback) {
         this.isAnimating = true;
@@ -38,7 +43,7 @@ class BubbleSort extends ArrayDS {
                         this.swap(j, j + 1);
                         
                         await this.animateStep(pnStepCallback, {
-                        comparing : [j, j + 1],
+                        swapping : [j, j + 1],
                         currentPass : i,
                         step : `Pass ${i + 1}: Swapped ${this.array[j]} and ${this.array[j + 1]}`
                         });
