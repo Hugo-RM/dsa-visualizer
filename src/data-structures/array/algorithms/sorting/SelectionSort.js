@@ -1,16 +1,43 @@
+/*
+void selectionSort(vector<int> &arr) {
+    int n = arr.size();
+
+    for (int i = 0; i < n - 1; ++i) {
+
+        // Assume the current position holds
+        // the minimum element
+        int min_idx = i;
+
+        // Iterate through the unsorted portion
+        // to find the actual minimum
+        for (int j = i + 1; j < n; ++j) {
+            if (arr[j] < arr[min_idx]) {
+
+                // Update min_idx if a smaller
+                // element is found
+                min_idx = j; 
+            }
+        }
+
+        // Move minimum element to its
+        // correct position
+        swap(arr[i], arr[min_idx]);
+    }
+}
+*/
+
 import ArrayDS from "../../ArrayDS";
 
-class BubbleSort extends ArrayDS {
+class SelectionSort extends ArrayDS {
     constructor(initArray) {
         super(initArray);
-        this.algoName = "Bubble Sort";
+        this.algoName = "Selection Sort";
         this.timeComplexity = "O(n²)";
         this.spaceComplexity = "O(1)";
         this.currentI = 0;
         this.currentJ = 0;
-        this.isStable = true;
+        this.isStable = false;
     }
-
     reset() {
         super.reset();
         this.currentI = 0;
@@ -29,32 +56,35 @@ class BubbleSort extends ArrayDS {
         try {
             for (let i = 0; i < this.array.length && !this.shouldStop; i++) {
                 this.currentI = i;
+                let minIndex = i;
                 
-                for (let j = 0; j < this.array.length - i - 1 && !this.shouldStop; j++) {
+                for (let j = i + 1; j < this.array.length && !this.shouldStop; j++) {
                     this.currentJ = j;
 
                     await this.animateStep(pnStepCallback, {
-                        comparing : [j, j + 1],
+                        comparing : [minIndex, j],
                         currentPass : i,
-                        step : `Pass ${i + 1}: Comparing ${this.array[j]} and ${this.array[j + 1]}`
+                        step : `Pass ${i + 1}: Comparing ${this.array[minIndex]} and ${this.array[j]}`
                     });
 
-                    if (!this.compare(j, j + 1)) {
-                        this.swap(j, j + 1);
-                        
-                        await this.animateStep(pnStepCallback, {
-                        swapping : [j, j + 1],
-                        currentPass : i,
-                        step : `Pass ${i + 1}: Swapped ${this.array[j]} and ${this.array[j + 1]}`
-                        });
+                    if (this.compare(minIndex, j)) {
+                        minIndex = j;
                     }
                     await this.delay();
                 }
+
+                this.swap(i, minIndex);
                 
                 await this.animateStep(pnStepCallback, {
-                    sorted: [this.array.length - i - 1],
+                swapping : [i, minIndex],
+                currentPass : i,
+                step : `Pass ${i + 1}: Swapped ${this.array[i]} and ${this.array[minIndex]}`
+                });
+
+                await this.animateStep(pnStepCallback, {
+                    sorted: [i],
                     currentPass: i,
-                    step: `Pass ${i + 1}: Position ${this.array.length - i - 1} is sorted`
+                    step: `Pass ${i + 1}: Position ${i + 1} is sorted`
                 });
             }
 
@@ -65,13 +95,14 @@ class BubbleSort extends ArrayDS {
                 });
             }
         } catch (error) {
-            console.error("Bubble Sort Error: ", error);
+            console.error("Selection Sort Error: ", error);
         } finally {
             this.isAnimating = false;
         }
 
         return this.getState();
     }
+
 
     async animateStep(callback, animationData) {
         if (this.shouldStop) return;
@@ -87,16 +118,15 @@ class BubbleSort extends ArrayDS {
             await callback(fullAnimationData);
         }
     }
-
     getAlgoInfo() {
         return {
             timeComplexity : this.timeComplexity, 
             spaceComplexity : this.spaceComplexity,
-            description : "Repeatedly steps through array checking if current is greater than the next, if so swap, else continue",
+            description : "Assumes current pass start index is min and finds the index of the min element after that. Will swap min with start.",
             isStable : this.isStable,
             name : this.algoName
         }
     }
 }
 
-export default BubbleSort
+export default SelectionSort

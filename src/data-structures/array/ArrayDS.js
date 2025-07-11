@@ -45,9 +45,9 @@ class ArrayDS extends BaseDataStructure {
     compare(i, j) {
         this.comparisons++;
         if (i >= 0 && i < this.array.length && j >= 0 && j < this.array.length) {
-            return this.array[i] - this.array[j];
+            return this.array[i] < this.array[j];
         }
-        return 0;
+        return false;
     }
     access(i) {
         this.accessCount++;
