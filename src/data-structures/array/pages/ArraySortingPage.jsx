@@ -1,34 +1,34 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import BubbleSort from '../algorithms/sorting/BubbleSort.js'
+import SelectionSort from '../algorithms/sorting/SelectionSort.js'
 import ArrayVisualizer from '../components/ArrayVisualizer.jsx'
 
 function ArraySortingPage() {
-  // Algorithm instances
   const [bubbleSortInstance, setBubbleSortInstance] = useState(null);
+  const [selectionSortInstance, setSelectionSortInstance] = useState(null);
   
-  // Array states for visualization
   const [bubbleArray, setBubbleArray] = useState([]);
   const [quickArray, setQuickArray] = useState([]);
   const [mergeArray, setMergeArray] = useState([]);
   const [selectionArray, setSelectionArray] = useState([]);
   
-  // Control states
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(300);
   
-  // Animation states
-  const [animationData, setAnimationData] = useState({});
+  const [bubbleAnimationData, setBubbleAnimationData] = useState({});
+  const [selectionAnimationData, setSelectionAnimationData] = useState({});
 
   // Initialize algorithm instances
   useEffect(() => {
     const initialArray = [64, 34, 25, 12, 22, 11, 90];
     
-    // Create bubble sort instance
     const bubbleSort = new BubbleSort(initialArray);
-    setBubbleSortInstance(bubbleSort);
+    const selectionSort = new SelectionSort(initialArray);
     
-    // Set initial arrays
+    setBubbleSortInstance(bubbleSort);
+    setSelectionSortInstance(selectionSort);
+    
     setBubbleArray([...initialArray]);
     setQuickArray([...initialArray]);
     setMergeArray([...initialArray]);
@@ -38,18 +38,25 @@ function ArraySortingPage() {
   // Animation callback for bubble sort
   const handleBubbleSortStep = async (data) => {
     setBubbleArray([...data.array]);
-    setAnimationData(data);
+    setBubbleAnimationData(data);
   };
 
-  // Start bubble sort using the class
+  const handleSelectionSortStep = async (data) => {
+    setSelectionArray([...data.array]);
+    setSelectionAnimationData(data);
+  };
+
   const runSort = async () => {
+    runBubbleSort();
+    runSelectionSort();
+  }
+
+  const runBubbleSort = async () => {
     if (!bubbleSortInstance) return;
 
     setIsRunning(true);
 
-    bubbleSortInstance.resetStats(); // added this line
-    
-    // Update the speed in the algorithm instance
+    bubbleSortInstance.resetStats();
     bubbleSortInstance.setAnimationSpeed(speed);
     
     try {
@@ -61,30 +68,54 @@ function ArraySortingPage() {
     }
   };
 
-  // Reset all arrays using the class
+  const runSelectionSort = async () => {
+    if (!selectionSortInstance) return;
+
+    setIsRunning(true);
+
+    selectionSortInstance.resetStats();
+    selectionSortInstance.setAnimationSpeed(speed);
+    
+    try {
+      await selectionSortInstance.sort(handleSelectionSortStep);
+    } catch (error) {
+      console.error('Selection sort error:', error);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   const resetArrays = () => {
     if (bubbleSortInstance) {
       bubbleSortInstance.stop();
       bubbleSortInstance.reset();
       setBubbleArray([...bubbleSortInstance.array]);
     }
-    
+    if (selectionSortInstance) {
+      selectionSortInstance.stop();
+      selectionSortInstance.reset();
+      setSelectionArray([...selectionSortInstance.array]);
+    }    
     setIsRunning(false);
-    setAnimationData({});
+    setBubbleAnimationData({});
+    setSelectionAnimationData({});
   };
 
-  // Generate new array and update all instances
   const generateNewArray = () => {
     const newArray = [];
     for (let i = 0; i < 8; i++) {
       newArray.push(Math.floor(Math.random() * 90) + 10);
     }
     
-    // Update bubble sort instance
     if (bubbleSortInstance) {
       bubbleSortInstance.stop();
       const newBubbleSort = new BubbleSort(newArray);
       setBubbleSortInstance(newBubbleSort);
+    }
+    if (selectionSortInstance) {
+      selectionSortInstance.stop();
+      const newSelectionSort = new SelectionSort(newArray);
+      setSelectionSortInstance(newSelectionSort);
     }
     
     // Update all array displays
@@ -158,20 +189,45 @@ function ArraySortingPage() {
       </div>
 
       {/* Algorithm Statistics */}
-      {bubbleSortInstance && animationData.comparisons !== undefined && (
+      {bubbleSortInstance && bubbleAnimationData.comparisons !== undefined || selectionSortInstance && selectionAnimationData.comparisons !== undefined && (
         <div className="bg-blue-50 rounded-lg p-4">
           <h3 className="font-semibold mb-2">Current Statistics</h3>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Comparisons:</span> {animationData.comparisons}
+          
+          {/* Bubble Sort Stats */}
+          {bubbleAnimationData.comparisons !== undefined && (
+            <div className="mb-3">
+              <h4 className="text-sm font-medium text-blue-600 mb-1">Bubble Sort:</h4>
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Comparisons:</span> {bubbleAnimationData.comparisons}
+                </div>
+                <div>
+                  <span className="font-medium">Swaps:</span> {bubbleAnimationData.swaps}
+                </div>
+                <div>
+                  <span className="font-medium">Step:</span> {bubbleAnimationData.step || 'Ready'}
+                </div>
+              </div>
             </div>
+          )}
+          
+          {/* Selection Sort Stats */}
+          {selectionAnimationData.comparisons !== undefined && (
             <div>
-              <span className="font-medium">Swaps:</span> {animationData.swaps}
+              <h4 className="text-sm font-medium text-teal-600 mb-1">Selection Sort:</h4>
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Comparisons:</span> {selectionAnimationData.comparisons}
+                </div>
+                <div>
+                  <span className="font-medium">Swaps:</span> {selectionAnimationData.swaps}
+                </div>
+                <div>
+                  <span className="font-medium">Step:</span> {selectionAnimationData.step || 'Ready'}
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="font-medium">Current Step:</span> {animationData.step || 'Ready'}
-            </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -185,7 +241,7 @@ function ArraySortingPage() {
           
           <ArrayVisualizer 
             array={bubbleArray}
-            animationData={animationData}
+            animationData={bubbleAnimationData}
             algorithm="bubble"
             height={40}
             showValues={true}
@@ -227,23 +283,20 @@ function ArraySortingPage() {
           <p className="text-center text-sm text-gray-600">Coming Soon</p>
         </div>
 
-        {/* Selection Sort (Placeholder) */}
-        <div className="bg-white rounded-lg shadow p-4 opacity-50">
+        {/* Selection Sort */}
+        <div className="bg-white rounded-lg shadow p-4">
           <h3 className="text-lg font-semibold mb-2">Selection Sort</h3>
           <p className="text-sm text-gray-600 mb-4">Time: O(n²) | Space: O(1)</p>
           
           <ArrayVisualizer 
             array={selectionArray}
-            animationData={null}
+            animationData={selectionAnimationData}
             algorithm="selection"
             height={40}
             showValues={true}
-            showCurrentArray={false}
+            showCurrentArray={true}
           />
-          
-          <p className="text-center text-sm text-gray-600">Coming Soon</p>
         </div>
-
       </div>
     </div>
   )

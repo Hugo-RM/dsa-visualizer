@@ -67,7 +67,7 @@ class SelectionSort extends ArrayDS {
                         step : `Pass ${i + 1}: Comparing ${this.array[minIndex]} and ${this.array[j]}`
                     });
 
-                    if (this.compare(minIndex, j)) {
+                    if (!this.compare(minIndex, j)) {
                         minIndex = j;
                     }
                     await this.delay();
