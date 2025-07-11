@@ -3,129 +3,175 @@ import { Link } from 'react-router-dom'
 import BubbleSort from '../algorithms/sorting/BubbleSort.js'
 import SelectionSort from '../algorithms/sorting/SelectionSort.js'
 import ArrayVisualizer from '../components/ArrayVisualizer.jsx'
+import ArrayStats from '../components/ArrayStats.jsx'
 
 function ArraySortingPage() {
-  const [bubbleSortInstance, setBubbleSortInstance] = useState(null);
-  const [selectionSortInstance, setSelectionSortInstance] = useState(null);
-  
-  const [bubbleArray, setBubbleArray] = useState([]);
-  const [quickArray, setQuickArray] = useState([]);
-  const [mergeArray, setMergeArray] = useState([]);
-  const [selectionArray, setSelectionArray] = useState([]);
-  
+  const algorithms = {
+    bubble: { 
+      name: 'Bubble Sort', 
+      Class: BubbleSort, 
+      complexity: 'Time: O(n²) | Space: O(1)',
+      color: 'blue'
+    },
+    selection: { 
+      name: 'Selection Sort', 
+      Class: SelectionSort, 
+      complexity: 'Time: O(n²) | Space: O(1)',
+      color: 'teal'
+    },
+    quick: { 
+      name: 'Quick Sort', 
+      Class: null, 
+      complexity: 'Time: O(n log n) | Space: O(log n)',
+      color: 'purple'
+    },
+    merge: { 
+      name: 'Merge Sort', 
+      Class: null, 
+      complexity: 'Time: O(n log n) | Space: O(n)',
+      color: 'orange'
+    }
+  };
+
+  const [algorithmStates, setAlgorithmStates] = useState({
+    bubble: { instance: null, array: [], animationData: {} },
+    selection: { instance: null, array: [], animationData: {} },
+    quick: { instance: null, array: [], animationData: {} },
+    merge: { instance: null, array: [], animationData: {} }
+  });
+
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(300);
-  
-  const [bubbleAnimationData, setBubbleAnimationData] = useState({});
-  const [selectionAnimationData, setSelectionAnimationData] = useState({});
 
-  // Initialize algorithm instances
+  // Initialize all algorithms
   useEffect(() => {
     const initialArray = [64, 34, 25, 12, 22, 11, 90];
     
-    const bubbleSort = new BubbleSort(initialArray);
-    const selectionSort = new SelectionSort(initialArray);
+    const newStates = {};
+    Object.keys(algorithms).forEach(key => {
+      const algo = algorithms[key];
+      newStates[key] = {
+        instance: algo.Class ? new algo.Class(initialArray) : null,
+        array: [...initialArray],
+        animationData: {}
+      };
+    });
     
-    setBubbleSortInstance(bubbleSort);
-    setSelectionSortInstance(selectionSort);
-    
-    setBubbleArray([...initialArray]);
-    setQuickArray([...initialArray]);
-    setMergeArray([...initialArray]);
-    setSelectionArray([...initialArray]);
+    setAlgorithmStates(newStates);
   }, []);
 
-  // Animation callback for bubble sort
-  const handleBubbleSortStep = async (data) => {
-    setBubbleArray([...data.array]);
-    setBubbleAnimationData(data);
+  const createAnimationCallback = (algorithmKey) => {
+    return async (data) => {
+      setAlgorithmStates(prev => ({
+        ...prev,
+        [algorithmKey]: {
+          ...prev[algorithmKey],
+          array: [...data.array],
+          animationData: data
+        }
+      }));
+    };
   };
 
-  const handleSelectionSortStep = async (data) => {
-    setSelectionArray([...data.array]);
-    setSelectionAnimationData(data);
-  };
-
-  const runSort = async () => {
-    runBubbleSort();
-    runSelectionSort();
-  }
-
-  const runBubbleSort = async () => {
-    if (!bubbleSortInstance) return;
+  const runAlgorithm = async (algorithmKey) => {
+    const state = algorithmStates[algorithmKey];
+    if (!state.instance || isRunning) return;
 
     setIsRunning(true);
-
-    bubbleSortInstance.resetStats();
-    bubbleSortInstance.setAnimationSpeed(speed);
+    state.instance.resetStats();
+    state.instance.setAnimationSpeed(speed);
     
     try {
-      await bubbleSortInstance.sort(handleBubbleSortStep);
+      await state.instance.sort(createAnimationCallback(algorithmKey));
     } catch (error) {
-      console.error('Bubble sort error:', error);
+      console.error(`${algorithms[algorithmKey].name} error:`, error);
     } finally {
       setIsRunning(false);
     }
   };
 
-  const runSelectionSort = async () => {
-    if (!selectionSortInstance) return;
+  const stopAllAlgorithms = () => {
+    Object.values(algorithmStates).forEach(state => {
+      if (state.instance) {
+        state.instance.stop();
+      }
+    });
+    setIsRunning(false);
+  };
 
-    setIsRunning(true);
+  const updateAllAlgorithmStates = (updateFunction) => {
+    setAlgorithmStates(prev => {
+      const newStates = {};
+      Object.keys(prev).forEach(key => {
+        newStates[key] = updateFunction(prev[key], key);
+      });
+      return newStates;
+    });
+  };
 
-    selectionSortInstance.resetStats();
-    selectionSortInstance.setAnimationSpeed(speed);
+  const runAllSorts = async () => {
+    stopAllAlgorithms();
+
+    updateAllAlgorithmStates((state) => {
+      if (state.instance) {
+        state.instance.resetStats();
+      }
+      return {
+        ...state,
+        animationData: {}
+      };
+    });
+
+    const availableAlgorithms = Object.keys(algorithms).filter(
+      key => algorithms[key].Class && algorithmStates[key].instance
+    );
     
+    setIsRunning(true);
     try {
-      await selectionSortInstance.sort(handleSelectionSortStep);
-    } catch (error) {
-      console.error('Selection sort error:', error);
+      await Promise.all(availableAlgorithms.map(key => runAlgorithm(key)));
     } finally {
       setIsRunning(false);
     }
   };
 
   const resetArrays = () => {
-    if (bubbleSortInstance) {
-      bubbleSortInstance.stop();
-      bubbleSortInstance.reset();
-      setBubbleArray([...bubbleSortInstance.array]);
-    }
-    if (selectionSortInstance) {
-      selectionSortInstance.stop();
-      selectionSortInstance.reset();
-      setSelectionArray([...selectionSortInstance.array]);
-    }    
-    setIsRunning(false);
-    setBubbleAnimationData({});
-    setSelectionAnimationData({});
+    stopAllAlgorithms();
+    
+    updateAllAlgorithmStates((state) => {
+      if (state.instance) {
+        state.instance.reset();
+        return {
+          ...state,
+          array: [...state.instance.array],
+          animationData: {}
+        };
+      }
+      return { ...state, animationData: {} };
+    });
   };
 
   const generateNewArray = () => {
-    const newArray = [];
-    for (let i = 0; i < 8; i++) {
-      newArray.push(Math.floor(Math.random() * 90) + 10);
-    }
+    stopAllAlgorithms();
     
-    if (bubbleSortInstance) {
-      bubbleSortInstance.stop();
-      const newBubbleSort = new BubbleSort(newArray);
-      setBubbleSortInstance(newBubbleSort);
-    }
-    if (selectionSortInstance) {
-      selectionSortInstance.stop();
-      const newSelectionSort = new SelectionSort(newArray);
-      setSelectionSortInstance(newSelectionSort);
-    }
+    const newArray = Array.from({ length: 8 }, () => 
+      Math.floor(Math.random() * 90) + 10
+    );
     
-    // Update all array displays
-    setBubbleArray([...newArray]);
-    setQuickArray([...newArray]);
-    setMergeArray([...newArray]);
-    setSelectionArray([...newArray]);
-    
-    setIsRunning(false);
-    setAnimationData({});
+    updateAllAlgorithmStates((state, key) => {
+      const algo = algorithms[key];
+      if (algo.Class) {
+        return {
+          instance: new algo.Class(newArray),
+          array: [...newArray],
+          animationData: {}
+        };
+      }
+      return {
+        instance: null,
+        array: [...newArray],
+        animationData: {}
+      };
+    });
   };
 
   return (
@@ -151,11 +197,11 @@ function ArraySortingPage() {
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex flex-wrap gap-4 items-center">
           <button
-            onClick={runSort}
+            onClick={runAllSorts}
             disabled={isRunning}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+            className="px-6 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-gray-400"
           >
-            {isRunning ? 'Running...' : 'Start Bubble Sort'}
+            {isRunning ? 'Running...' : 'Run All Algorithms'}
           </button>
           
           <button
@@ -188,115 +234,38 @@ function ArraySortingPage() {
         </div>
       </div>
 
-      {/* Algorithm Statistics */}
-      {bubbleSortInstance && bubbleAnimationData.comparisons !== undefined || selectionSortInstance && selectionAnimationData.comparisons !== undefined && (
-        <div className="bg-blue-50 rounded-lg p-4">
-          <h3 className="font-semibold mb-2">Current Statistics</h3>
-          
-          {/* Bubble Sort Stats */}
-          {bubbleAnimationData.comparisons !== undefined && (
-            <div className="mb-3">
-              <h4 className="text-sm font-medium text-blue-600 mb-1">Bubble Sort:</h4>
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">Comparisons:</span> {bubbleAnimationData.comparisons}
-                </div>
-                <div>
-                  <span className="font-medium">Swaps:</span> {bubbleAnimationData.swaps}
-                </div>
-                <div>
-                  <span className="font-medium">Step:</span> {bubbleAnimationData.step || 'Ready'}
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Selection Sort Stats */}
-          {selectionAnimationData.comparisons !== undefined && (
-            <div>
-              <h4 className="text-sm font-medium text-teal-600 mb-1">Selection Sort:</h4>
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">Comparisons:</span> {selectionAnimationData.comparisons}
-                </div>
-                <div>
-                  <span className="font-medium">Swaps:</span> {selectionAnimationData.swaps}
-                </div>
-                <div>
-                  <span className="font-medium">Step:</span> {selectionAnimationData.step || 'Ready'}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Algorithm Grid (2x2) */}
+      {/* Algorithm Grid (2x2)*/}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Bubble Sort */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold mb-2">Bubble Sort</h3>
-          <p className="text-sm text-gray-600 mb-4">Time: O(n²) | Space: O(1)</p>
+        {Object.entries(algorithms).map(([key, algo]) => {
+          const state = algorithmStates[key];
+          const isActive = algo.Class !== null;
           
-          <ArrayVisualizer 
-            array={bubbleArray}
-            animationData={bubbleAnimationData}
-            algorithm="bubble"
-            height={40}
-            showValues={true}
-            showCurrentArray={true}
-          />
-        </div>
-
-        {/* Quick Sort (Placeholder) */}
-        <div className="bg-white rounded-lg shadow p-4 opacity-50">
-          <h3 className="text-lg font-semibold mb-2">Quick Sort</h3>
-          <p className="text-sm text-gray-600 mb-4">Time: O(n log n) | Space: O(log n)</p>
-          
-          <ArrayVisualizer 
-            array={quickArray}
-            animationData={null}
-            algorithm="quick"
-            height={40}
-            showValues={true}
-            showCurrentArray={false}
-          />
-          
-          <p className="text-center text-sm text-gray-600">Coming Soon</p>
-        </div>
-
-        {/* Merge Sort (Placeholder) */}
-        <div className="bg-white rounded-lg shadow p-4 opacity-50">
-          <h3 className="text-lg font-semibold mb-2">Merge Sort</h3>
-          <p className="text-sm text-gray-600 mb-4">Time: O(n log n) | Space: O(n)</p>
-          
-          <ArrayVisualizer 
-            array={mergeArray}
-            animationData={null}
-            algorithm="merge"
-            height={40}
-            showValues={true}
-            showCurrentArray={false}
-          />
-          
-          <p className="text-center text-sm text-gray-600">Coming Soon</p>
-        </div>
-
-        {/* Selection Sort */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold mb-2">Selection Sort</h3>
-          <p className="text-sm text-gray-600 mb-4">Time: O(n²) | Space: O(1)</p>
-          
-          <ArrayVisualizer 
-            array={selectionArray}
-            animationData={selectionAnimationData}
-            algorithm="selection"
-            height={40}
-            showValues={true}
-            showCurrentArray={true}
-          />
-        </div>
+          return (
+            <div key={key} className={`bg-white rounded-lg shadow p-4 ${!isActive ? 'opacity-50' : ''}`}>
+              <h3 className="text-lg font-semibold mb-2">{algo.name}</h3>
+              <p className="text-sm text-gray-600 mb-4">{algo.complexity}</p>
+              
+              <ArrayVisualizer 
+                array={state.array}
+                animationData={isActive ? state.animationData : null}
+                algorithm={key}
+                height={40}
+                showValues={true}
+                showCurrentArray={isActive}
+              />
+              
+              {isActive ? (
+                <ArrayStats 
+                  animationData={state.animationData} 
+                  algorithm={key}
+                  showAccessCount={true}
+                />
+              ) : (
+                <p className="text-center text-sm text-gray-600 mt-4">Coming Soon</p>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   )

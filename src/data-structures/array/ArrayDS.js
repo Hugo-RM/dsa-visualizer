@@ -26,7 +26,7 @@ class ArrayDS extends BaseDataStructure {
         this.accessCount = 0;
         this.comparisons = 0;
         this.swaps = 0;
-        this.shouldStop = true; // watch out
+        this.shouldStop = true;
         this.isAnimating = false;
     }
     resetStats() {
@@ -36,7 +36,12 @@ class ArrayDS extends BaseDataStructure {
     }
     swap(i, j) {
         if (i >= 0 && i < this.array.length && j >= 0 && j < this.array.length) {
-            [this.array[i], this.array[j]] = [this.array[j], this.array[i]];
+            const valueI = this.access(i);
+            const valueJ = this.access(j);
+            
+            this.array[i] = valueJ;
+            this.array[j] = valueI;
+            
             this.swaps++;
             return true;
         }
@@ -45,14 +50,14 @@ class ArrayDS extends BaseDataStructure {
     compare(i, j) {
         this.comparisons++;
         if (i >= 0 && i < this.array.length && j >= 0 && j < this.array.length) {
-            return this.array[i] < this.array[j];
+            return this.access(i) < this.access(j);
         }
         return false;
     }
     access(i) {
         this.accessCount++;
-        if (i >= 0 ** i <= this.array.length) {
-            return this.array[index];
+        if (i >= 0 && i < this.array.length) {
+            return this.array[i];
         }
         return null;
     }

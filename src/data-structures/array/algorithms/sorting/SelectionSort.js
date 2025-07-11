@@ -1,31 +1,3 @@
-/*
-void selectionSort(vector<int> &arr) {
-    int n = arr.size();
-
-    for (int i = 0; i < n - 1; ++i) {
-
-        // Assume the current position holds
-        // the minimum element
-        int min_idx = i;
-
-        // Iterate through the unsorted portion
-        // to find the actual minimum
-        for (int j = i + 1; j < n; ++j) {
-            if (arr[j] < arr[min_idx]) {
-
-                // Update min_idx if a smaller
-                // element is found
-                min_idx = j; 
-            }
-        }
-
-        // Move minimum element to its
-        // correct position
-        swap(arr[i], arr[min_idx]);
-    }
-}
-*/
-
 import ArrayDS from "../../ArrayDS";
 
 class SelectionSort extends ArrayDS {
@@ -72,20 +44,21 @@ class SelectionSort extends ArrayDS {
                     }
                     await this.delay();
                 }
+                if (i != minIndex) {
+                    this.swap(i, minIndex);
+                    
+                    await this.animateStep(pnStepCallback, {
+                    swapping : [i, minIndex],
+                    currentPass : i,
+                    step : `Pass ${i + 1}: Swapped ${this.array[i]} and ${this.array[minIndex]}`
+                    });
 
-                this.swap(i, minIndex);
-                
-                await this.animateStep(pnStepCallback, {
-                swapping : [i, minIndex],
-                currentPass : i,
-                step : `Pass ${i + 1}: Swapped ${this.array[i]} and ${this.array[minIndex]}`
-                });
-
-                await this.animateStep(pnStepCallback, {
-                    sorted: [i],
-                    currentPass: i,
-                    step: `Pass ${i + 1}: Position ${i + 1} is sorted`
-                });
+                    await this.animateStep(pnStepCallback, {
+                        sorted: [i],
+                        currentPass: i,
+                        step: `Pass ${i + 1}: Position ${i + 1} is sorted`
+                    });
+                }
             }
 
             if (!this.shouldStop) {
