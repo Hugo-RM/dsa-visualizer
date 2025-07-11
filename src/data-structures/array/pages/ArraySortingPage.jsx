@@ -11,25 +11,21 @@ function ArraySortingPage() {
       name: 'Bubble Sort', 
       Class: BubbleSort, 
       complexity: 'Time: O(n²) | Space: O(1)',
-      color: 'blue'
     },
     selection: { 
       name: 'Selection Sort', 
       Class: SelectionSort, 
       complexity: 'Time: O(n²) | Space: O(1)',
-      color: 'teal'
     },
     quick: { 
       name: 'Quick Sort', 
       Class: null, 
       complexity: 'Time: O(n log n) | Space: O(log n)',
-      color: 'purple'
     },
     merge: { 
       name: 'Merge Sort', 
       Class: null, 
       complexity: 'Time: O(n log n) | Space: O(n)',
-      color: 'orange'
     }
   };
 
